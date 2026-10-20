@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@iconify/tailwind4";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -59,8 +60,11 @@
   --card-foreground: oklch(0.22 0.01 255);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.01 255);
-  --primary: oklch(0.24 0.01 255);
-  --primary-foreground: oklch(0.98 0.002 250);
+  /* --brand is set from the accent picker; crimson from the logo by default */
+  --brand: #b1212e;
+  --brand-foreground: #ffffff;
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
   --secondary: oklch(0.955 0.003 250);
   --secondary-foreground: oklch(0.24 0.01 255);
   --muted: oklch(0.955 0.003 250);
@@ -70,10 +74,10 @@
   --destructive: oklch(0.56 0.2 27);
   --border: oklch(0.91 0.004 250);
   --input: oklch(0.88 0.004 250);
-  --ring: oklch(0.6 0.01 255);
+  --ring: color-mix(in oklch, var(--brand) 70%, transparent);
   --canvas: oklch(0.855 0.003 250);
   --canvas-foreground: oklch(0.42 0.008 255);
-  --marker: oklch(0.57 0.19 28);
+  --marker: var(--brand);
   --radius: 0.5rem;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -97,8 +101,8 @@
   --card-foreground: oklch(0.95 0.003 250);
   --popover: oklch(0.25 0.005 255);
   --popover-foreground: oklch(0.95 0.003 250);
-  --primary: oklch(0.93 0.003 250);
-  --primary-foreground: oklch(0.22 0.005 255);
+  --primary: color-mix(in oklch, var(--brand), white 12%);
+  --primary-foreground: var(--brand-foreground);
   --secondary: oklch(0.28 0.005 255);
   --secondary-foreground: oklch(0.95 0.003 250);
   --muted: oklch(0.28 0.005 255);
@@ -108,10 +112,10 @@
   --destructive: oklch(0.68 0.17 25);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.6 0.006 255);
+  --ring: color-mix(in oklch, var(--brand), white 20%);
   --canvas: oklch(0.3 0.004 255);
   --canvas-foreground: oklch(0.72 0.005 255);
-  --marker: oklch(0.66 0.17 28);
+  --marker: color-mix(in oklch, var(--brand), white 18%);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -145,4 +149,18 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Workspace backdrop choices (Preferences → Canvas) */
+[data-canvas="light"] {
+  --canvas: oklch(0.95 0.002 250);
+  --canvas-foreground: oklch(0.45 0.008 255);
+}
+[data-canvas="dark"] {
+  --canvas: oklch(0.2 0.004 255);
+  --canvas-foreground: oklch(0.72 0.005 255);
+}
+[data-canvas="checker"] {
+  background-image: conic-gradient(rgb(0 0 0 / 0.06) 25%, transparent 0 50%, rgb(0 0 0 / 0.06) 0 75%, transparent 0);
+  background-size: 20px 20px;
 }

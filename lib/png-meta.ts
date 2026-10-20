@@ -4,6 +4,7 @@
 
 export type GenMeta = {
   prompt?: string
+  negative?: string
   seed?: string
   steps?: string
   cfg?: string
@@ -66,10 +67,21 @@ function parseA1111(text: string): GenMeta {
   const paramLine = lines.findLast((l) => /Steps:\s*\d+/.test(l)) ?? ""
   const promptEnd = lines.findIndex((l) => l.startsWith("Negative prompt:") || l === paramLine)
   const prompt = lines.slice(0, promptEnd < 0 ? lines.length : promptEnd).join(" ").trim()
+  const negStart = lines.findIndex((l) => l.startsWith("Negative prompt:"))
+  const negEnd = lines.indexOf(paramLine)
+  const negative =
+    negStart < 0
+      ? ""
+      : lines
+          .slice(negStart, negEnd > negStart ? negEnd : undefined)
+          .join(" ")
+          .replace(/^Negative prompt:\s*/, "")
+          .trim()
 
   const get = (key: string) => paramLine.match(new RegExp(`${key}:\\s*([^,]+)`))?.[1]?.trim()
   return {
     prompt: prompt || undefined,
+    negative: negative || undefined,
     seed: get("Seed"),
     steps: get("Steps"),
     cfg: get("CFG scale"),
@@ -93,14 +105,16 @@ function parseComfy(json: string): GenMeta {
 
   const sampler = nodes.find((n) => n.class_type?.startsWith("KSampler"))?.inputs ?? {}
   const ckpt = nodes.find((n) => n.inputs && "ckpt_name" in n.inputs)?.inputs
-  const positive = Array.isArray(sampler.positive) ? graph[String(sampler.positive[0])]?.inputs : undefined
+  const linked = (v: unknown) => (Array.isArray(v) ? graph[String(v[0])]?.inputs : undefined)
+  const positive = linked(sampler.positive)
 
   return {
     prompt: prim(positive?.text),
+    negative: prim(linked(sampler.negative)?.text),
     seed: prim(sampler.seed ?? sampler.noise_seed),
     steps: prim(sampler.steps),
     cfg: prim(sampler.cfg),
-    sampler: [prettySampler(prim(sampler.sampler_name)), prim(sampler.scheduler)].filter(Boolean).join(" ") || undefined,
+    sampler: [prettySampler(prim(sampler.sampler_name)), prim(sampler.scheduler)?.replace(/^\w/, (c) => c.toUpperCase())].filter(Boolean).join(" ") || undefined,
     model: prim(ckpt?.ckpt_name)?.replace(/\.(safetensors|ckpt)$/, ""),
   }
 }
